@@ -1,5 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/user.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 // import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -53,8 +57,49 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    
     return await this.userRepository.find();
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
+    try {
+      //check if user was soft deleted
+      const usernameUser = await this.findOneByUsername(updateUserDto.username);
+
+      if (usernameUser && usernameUser.id != id) {
+        throw new BadRequestException(
+          'Ya existe un usuario con el mismo nombre de usuario',
+        );
+      }
+
+      //check if user was soft deleted
+      const emailUser = await this.findOneByUsername(updateUserDto.username);
+
+      if (emailUser && emailUser.id != id) {
+        throw new BadRequestException(
+          'Ya existe un usuario con el mismo email',
+        );
+      }
+
+      //check if user was soft deleted
+      const dniUser = await this.findOneByDni(updateUserDto.dni);
+
+      if (dniUser && dniUser.id != id) {
+        throw new BadRequestException('Ya existe un usuario con el mismo dni');
+      }
+
+      const result = await this.userRepository.update(id, updateUserDto);
+
+      if (result.affected === 0) {
+        throw new NotFoundException(`Docente con ID ${id} no encontrado`);
+      }
+
+      return this.findOneByDni(updateUserDto.dni);
+    } catch (error) {
+      return null;
+      // console.log(error);
+
+      // throw error;
+    }
   }
 
   // custom
