@@ -21,7 +21,9 @@ export class FolderHistory {
   @ManyToOne(() => Folder, (folder) => folder.history)
   folder: Folder;
 
-  @ManyToOne(() => User, (user) => user.folderHistory)
+  @ManyToOne(() => User, (user) => user.folderHistory, {
+    eager: true,
+  })
   user: User;
 
   @Column({ type: 'tinyint', default: 0 })
