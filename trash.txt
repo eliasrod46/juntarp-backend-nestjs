@@ -1,0 +1,10 @@
+    // // throw new ForbiddenException('403');//
+    // // throw new BadRequestException('');//400
+
+
+    numeros que pasans con errores
+    // // throw new NotFoundException('');//404
+
+    numeros que rebotan 
+    // // throw new UnauthorizedException('');//401
+   // throw new InternalServerErrorException('500'); //
