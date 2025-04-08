@@ -21,7 +21,6 @@ export class DocentesController {
 
   @Get()
   async findAll() {
-
     const docentes = await this.docentesService.findAll();
     return docentes.map((docente) => ({
       ...docente,
@@ -43,4 +42,6 @@ export class DocentesController {
   remove(@Param('id') id: string) {
     return this.docentesService.remove(id);
   }
+
+
 }
