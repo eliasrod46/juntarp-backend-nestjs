@@ -7,16 +7,18 @@ import { UserModule } from './modules/user/user.module';
 import { ArchivoModule } from './modules/archivo/archivo.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { RolesModule } from './modules/roles/roles.module';
+import { envs } from './config/envs';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: '127.0.0.1',
-      port: 3306,
-      username: 'root',
-      password: '',
-      database: 'db_jrp',
+      host: envs.db_host,
+      port: envs.db_port,
+      username: envs.db_username,
+      password: envs.db_password,
+      database: envs.db_database,
       entities: [],
       synchronize: true,
       autoLoadEntities: true,
@@ -35,6 +37,7 @@ import { JwtModule } from '@nestjs/jwt';
     CicloModule,
     TurnosModule,
     ArchivoModule,
+    RolesModule,
   ],
 })
 export class AppModule {}

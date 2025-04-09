@@ -55,29 +55,28 @@ export class AuthService {
       throw new UnauthorizedException('Password not valid');
     }
 
-    const user_data = {
+    const userData = {
       dni: user.dni,
       username: user.username,
       fullname: `${user.lastname}, ${user.name}`,
-      auth: {
-        roles: [user.rol],
-        permissions: [],
-      },
+      auth: await this.getPermissions(user),
     };
-
     const payload = { dni: user.dni };
     const token = await this.jwtService.signAsync(payload);
 
-    return { token, user_data };
+    return { token, userData };
   }
 
-  // async profile({ email, role }: { email: string; role: string }) {
-  //   if (role !== 'admin') {
-  //     throw new UnauthorizedException(
-  //       'You are not authoried to access this resource',
-  //     );
-  //   }
+  async getPermissions(user: User) {
+    const rolesToSend: string[] = [];
+    const user_roles = user.roles;
+    user_roles.forEach((role) => {
+      rolesToSend.push(role.name);
+    });
 
-  //   return await this.userService.findOneByEmail(email);
-  // }
+    return {
+      roles: rolesToSend,
+      permissions: [],
+    };
+  }
 }

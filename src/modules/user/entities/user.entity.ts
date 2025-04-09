@@ -1,8 +1,11 @@
 import { FolderHistory } from 'src/modules/archivo/entities/folderHistory.entity';
+import { Role } from 'src/modules/roles/entities/role.entity';
 import {
   Column,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -42,4 +45,20 @@ export class User {
 
   @OneToMany(() => User, (user) => user.folderHistory)
   folderHistory: FolderHistory[];
+
+  @ManyToMany(() => Role, (role) => role.users, {
+    eager: true,
+  })
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  roles: Role[];
 }
