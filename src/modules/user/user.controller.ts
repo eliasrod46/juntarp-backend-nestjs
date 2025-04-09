@@ -1,35 +1,46 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  AssignRolesUserDto,
+} from './dto/user.dto';
+import { AuthGuard } from '../auth/guard/auth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
-  // @Get(':email')
-  // findOne(@Param('id') email: string) {
-  //   // return this.userService.findOneBy();
-  // }
 
+  @UseGuards(AuthGuard)
   @Get()
   async findAll() {
     const users = await this.userService.findAll();
     return users;
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.userService.findAll();
-  // }
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.userService.remove(+id);
-  // }
+
+  @UseGuards(AuthGuard)
+  @Post('assign-roles')
+  assignRoles(@Body() assignRolesUserDto: AssignRolesUserDto) {
+    return this.userService.assignRoles(assignRolesUserDto);
+  }
 }

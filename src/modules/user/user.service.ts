@@ -3,18 +3,26 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import {
+  AssignRolesUserDto,
+  CreateUserDto,
+  UpdateUserDto,
+} from './dto/user.dto';
 // import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, In, Repository } from 'typeorm';
 import * as bcryptjs from 'bcryptjs';
+import { RolesService } from '../roles/services/roles.service';
+import { Role } from '../roles/entities/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -134,6 +142,32 @@ export class UserService {
       //   'Error buscando usuario eliminado por múltiples identificadores:',
       //   error,
       // );
+      return null;
+    }
+  }
+
+  async assignRoles(
+    assignRolesUserDto: AssignRolesUserDto,
+  ): Promise<true | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: assignRolesUserDto.user_id },
+    });
+    if (!user) {
+      throw new NotFoundException(
+        `Usuario con Id "${assignRolesUserDto.user_id}" no encontrado.`,
+      );
+    }
+
+    const rolesToAssign = await this.roleRepository.find({
+      where: { id: In(assignRolesUserDto.roles_id) },
+    });
+
+    user.roles = rolesToAssign;
+    try {
+      await this.userRepository.save(user);
+    } catch (error) {
+      console.error('Error al asignar roles al usuario:', error);
+      // throw error;
       return null;
     }
   }

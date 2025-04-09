@@ -1,7 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { envs } from './config/envs';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,6 +30,6 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // await app.listen(process.env.PORT ?? 8000); // with docker
-  await app.listen(process.env.PORT ?? 8881); // without docker
+  await app.listen(envs.port); // without docker
 }
 bootstrap();

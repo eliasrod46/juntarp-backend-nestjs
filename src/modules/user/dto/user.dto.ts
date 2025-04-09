@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import {
+  IsArray,
   IsEmail,
   IsString,
   MinLength,
@@ -57,5 +58,12 @@ export class ChangePasswordDto {
   @MinLength(8)
   @Validate(MatchPasswords)
   confirmPassword: string;
+}
 
+export class AssignRolesUserDto {
+  @IsString()
+  user_id: string;
+
+  @IsArray()
+  roles_id: string[];
 }
