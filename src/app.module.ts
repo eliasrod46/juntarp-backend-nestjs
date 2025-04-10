@@ -28,7 +28,7 @@ import { envs } from './config/envs';
     }),
     JwtModule.register({
       global: true,
-      secret: 'jwtConstants.secret',
+      secret: envs.jwt_secret,
       signOptions: { expiresIn: '1d' },
     }),
     AuthModule,
