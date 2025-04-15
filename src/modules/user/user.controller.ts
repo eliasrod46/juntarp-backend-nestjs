@@ -12,6 +12,7 @@ import {
   CreateUserDto,
   UpdateUserDto,
   AssignRolesUserDto,
+  ChangePasswordDto,
 } from './dto/user.dto';
 import { AuthGuard } from '../auth/guard/auth.guard';
 
@@ -42,5 +43,14 @@ export class UserController {
   @Post('assign-roles')
   assignRoles(@Body() assignRolesUserDto: AssignRolesUserDto) {
     return this.userService.assignRoles(assignRolesUserDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('change-password/:id')
+  changePassword(
+    @Param('id') id: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(id,changePasswordDto);
   }
 }

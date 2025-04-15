@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import {
   AssignRolesUserDto,
+  ChangePasswordDto,
   CreateUserDto,
   UpdateUserDto,
 } from './dto/user.dto';
@@ -114,6 +115,7 @@ export class UserService {
   findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
+
   findOneByUsername(username: string) {
     return this.userRepository.findOneBy({ username });
   }
@@ -165,6 +167,28 @@ export class UserService {
     user.roles = rolesToAssign;
     try {
       await this.userRepository.save(user);
+    } catch (error) {
+      console.error('Error al asignar roles al usuario:', error);
+      // throw error;
+      return null;
+    }
+  }
+
+  async changePassword(
+    id: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<true | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: id },
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario con Id "${id}" no encontrado.`);
+    }
+
+    user.password = await bcryptjs.hash(changePasswordDto.newPassword, 10);
+    try {
+      await this.userRepository.save(user);
+      return true;
     } catch (error) {
       console.error('Error al asignar roles al usuario:', error);
       // throw error;

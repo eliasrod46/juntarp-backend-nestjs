@@ -56,6 +56,7 @@ export class AuthService {
     }
 
     const userData = {
+      id: user.id,
       dni: user.dni,
       username: user.username,
       fullname: `${user.lastname}, ${user.name}`,
