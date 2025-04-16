@@ -46,13 +46,13 @@ export class AuthService {
     } else if (userUsername) {
       user = userUsername;
     } else {
-      throw new UnauthorizedException('User not exists');
+      throw new UnauthorizedException('El usuario no existe');
     }
 
     const isPassowrdValid = await bcryptjs.compare(password, user.password);
 
     if (!isPassowrdValid) {
-      throw new UnauthorizedException('Password not valid');
+      throw new UnauthorizedException('El password no es valido');
     }
 
     const userData = {

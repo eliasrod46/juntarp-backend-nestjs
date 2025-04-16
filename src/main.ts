@@ -3,16 +3,19 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { envs } from './config/envs';
-
+import { GlobalExceptionFilter } from './global-exception.filter';
+import { HttpAdapterHost } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const httpAdapterHost = app.get(HttpAdapterHost);
 
   app.enableCors({
-    origin: '*', // Permitir todos los dominios (no recomendado en producción)
+    origin: '*', 
   });
 
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new GlobalExceptionFilter(httpAdapterHost));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

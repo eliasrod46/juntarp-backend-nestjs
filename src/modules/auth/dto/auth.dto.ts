@@ -18,6 +18,7 @@ export class RegisterAuthDto {
 
 export class LoginAuthDto {
   @IsString()
+  @MinLength(5)
   email: string;
 
   @Transform(({ value }) => value.trim())
