@@ -62,15 +62,6 @@ export class FolderService {
     return folder;
   }
 
-  async getHistoryFolder(id: string) {
-    const folder = await this.folderRepository.findOneBy({ id });
-
-    if (!folder) {
-      throw new NotFoundException(`Carpeta con ID ${id} no encontrada`);
-    }
-    return folder;
-  }
-
   async update(id: string, updateFolderDto: UpdateFolderDto, user_dni: any) {
     try {
       // obtengo el turno a actualizar

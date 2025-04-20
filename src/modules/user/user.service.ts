@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   AssignRolesUserDto,
@@ -111,6 +112,13 @@ export class UserService {
     }
   }
 
+  async remove(id: string): Promise<void> {
+    const result = await this.userRepository.softDelete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Docente con ID ${id} no encontrado`);
+    }
+  }
+
   // custom
   findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
@@ -183,6 +191,19 @@ export class UserService {
     });
     if (!user) {
       throw new NotFoundException(`Usuario con Id "${id}" no encontrado.`);
+    }
+
+    const isPassowrdValid = await bcryptjs.compare(
+      changePasswordDto.oldPassword,
+      user.password,
+    );
+
+    if (!isPassowrdValid) {
+      throw new UnauthorizedException('El password no es valido');
+    }
+
+    if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+      throw new UnauthorizedException('Los passwords no coinciden');
     }
 
     user.password = await bcryptjs.hash(changePasswordDto.newPassword, 10);

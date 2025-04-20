@@ -49,7 +49,6 @@ export class FolderController {
     @Body() updateArchivoDto: UpdateFolderDto,
     @Req() request: any,
   ) {
-    console.log();
 
     return this.folderService.update(id, updateArchivoDto, request.user);
   }

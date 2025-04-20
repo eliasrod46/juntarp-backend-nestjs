@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class RegisterAuthDto {
   @IsEmail()
@@ -17,12 +17,16 @@ export class RegisterAuthDto {
 }
 
 export class LoginAuthDto {
-  @IsString()
-  @MinLength(5)
+  @IsNotEmpty({ message: 'email El dni/usuario/email es obligatorio.' })
+  @MinLength(5, {
+    message: 'email El dni/usuario/email debe tener al menos 5 caracteres.',
+  })
   email: string;
 
   @Transform(({ value }) => value.trim())
-  @IsString()
-  @MinLength(8)
+  @IsNotEmpty({ message: 'password El password es obligatorio.' })
+  @MinLength(8, {
+    message: 'password El password debe tener al menos 8 caracteres.',
+  })
   password: string;
 }

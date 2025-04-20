@@ -10,11 +10,8 @@ import { PartialType } from '@nestjs/mapped-types';
 // import { Origin } from '../entities/folder.entity';
 
 export class CreateFolderDto {
-
-  
   @IsOptional()
   @IsString()
-  @MinLength(3)
   location?: string;
 
   @IsOptional()
@@ -30,7 +27,7 @@ export class CreateFolderDto {
   @IsOptional()
   @IsDateString()
   income_date?: string;
-  
+
   @IsOptional()
   @IsDateString()
   outcome_date?: string;

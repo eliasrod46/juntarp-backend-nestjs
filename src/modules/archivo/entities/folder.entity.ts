@@ -23,7 +23,7 @@ export class Folder {
   })
   docente: Docente;
 
-  @Column({ type: 'tinyint', default: 0 })
+  @Column({ type: 'tinyint', default: 1 }) //1 active; 2 pasiveFile; 3 out of file
   state: number;
 
   @Column({ type: 'tinyint', default: 1 })

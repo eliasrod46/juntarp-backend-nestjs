@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -39,6 +40,11 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.userService.remove(id);
+  }
+
   @UseGuards(AuthGuard)
   @Post('assign-roles')
   assignRoles(@Body() assignRolesUserDto: AssignRolesUserDto) {
@@ -51,6 +57,6 @@ export class UserController {
     @Param('id') id: string,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
-    return this.userService.changePassword(id,changePasswordDto);
+    return this.userService.changePassword(id, changePasswordDto);
   }
 }
