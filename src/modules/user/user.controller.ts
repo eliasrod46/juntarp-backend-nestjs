@@ -60,7 +60,7 @@ export class UserController {
     return this.userService.changePassword(id, changePasswordDto);
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Patch('reset-password/:id')
   resetPassword(
     @Param('id') id: string,
