@@ -216,4 +216,29 @@ export class UserService {
       return null;
     }
   }
+
+  async resetPassword(
+    id: string,
+  ): Promise<true | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: id },
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario con Id "${id}" no encontrado.`);
+    }
+
+
+    user.password = await bcryptjs.hash(user.dni, 10);
+    try {
+      await this.userRepository.save(user);
+      return true;
+    } catch (error) {
+      console.error('Error al resetear password al usuario:', error);
+      // throw error;
+      return null;
+    }
+  }
+
+
+
 }
