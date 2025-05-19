@@ -53,6 +53,12 @@ export class FolderService {
     return await this.folderRepository.find({ where: { originFile } });
   }
 
+  async findAllHistory(originFile: number) {
+    return await this.folderHistoryRepository.find({ where: { originFile },relations: ['folder'],order: {
+      updatedAt: 'DESC', // O 'ASC' si quieres ordenar de más antiguo a más reciente
+    }, });
+  }
+
   async findOne(id: string) {
     const folder = await this.folderRepository.findOneBy({ id });
 

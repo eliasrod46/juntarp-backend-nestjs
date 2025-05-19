@@ -31,6 +31,12 @@ export class FolderController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('history-ingreso-folders')
+  findAllHistoryOriginIngreso() {
+    return this.folderService.findAllHistory(1);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('titulares-folders')
   findAllOriginTitulares() {
     return this.folderService.findAll(2);
@@ -49,7 +55,6 @@ export class FolderController {
     @Body() updateArchivoDto: UpdateFolderDto,
     @Req() request: any,
   ) {
-
     return this.folderService.update(id, updateArchivoDto, request.user);
   }
 
