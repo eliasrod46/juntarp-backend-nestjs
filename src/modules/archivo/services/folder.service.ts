@@ -117,52 +117,54 @@ export class FolderService {
   async createFolders() {
     const docentes = await this.docenteService.findAll();
 
-    for (const docente of docentes) {
-      // Check if folders exist
-      const checkIfExistIngresoFolder = await this.folderRepository.findOne({
-        where: {
-          docente: { id: docente.id },
-          originFile: 1,
-        },
-      });
-
-      const checkIfExistTitularesFolder = await this.folderRepository.findOne({
-        where: {
-          docente: { id: docente.id },
-          originFile: 2,
-        },
-      });
-
-      // If not, will create
-      const newFolders = []; // Array to save new folders
-
-      if (!checkIfExistIngresoFolder) {
-        const newIngresoFolder = await this.create({
-          docenteId: docente.id,
-          originFile: 1,
-          state: 1,
+    try {
+      for (const docente of docentes) {
+        // Check if folders exist
+        const checkIfExistIngresoFolder = await this.folderRepository.findOne({
+          where: {
+            docente: { id: docente.id },
+            originFile: 1,
+          },
         });
-        newFolders.push(newIngresoFolder); // add new folder
-      }
-
-      if (!checkIfExistTitularesFolder) {
-        const newTitularesFolder = await this.create({
-          docenteId: docente.id,
-          originFile: 2,
-          state: 1,
+  
+        const checkIfExistTitularesFolder = await this.folderRepository.findOne({
+          where: {
+            docente: { id: docente.id },
+            originFile: 2,
+          },
         });
-        newFolders.push(newTitularesFolder); // add new folder
-      }
-
-      // Assign all new folders to the teacher
-      if (newFolders.length > 0) {
-        // Actualizar el docente con las nuevas carpetas
-        for (const newFolder of newFolders) {
-          newFolder.docente = docente;
-          await this.folderRepository.save(newFolder);
+  
+        // If not, will create
+        const newFolders = []; // Array to save new folders
+  
+        if (!checkIfExistIngresoFolder) {
+          const newIngresoFolder = await this.create({
+            docenteId: docente.id,
+            originFile: 1,
+            state: 1,
+          });
+          newFolders.push(newIngresoFolder); // add new folder
+        }
+  
+        if (!checkIfExistTitularesFolder) {
+          const newTitularesFolder = await this.create({
+            docenteId: docente.id,
+            originFile: 2,
+            state: 1,
+          });
+          newFolders.push(newTitularesFolder); // add new folder
+        }
+  
+        // Assign all new folders to the teacher
+        if (newFolders.length > 0) {
+          // Actualizar el docente con las nuevas carpetas
+          for (const newFolder of newFolders) {
+            newFolder.docente = docente;
+            await this.folderRepository.save(newFolder);
+          }
         }
       }
-    }
-    return true;
+      return true;
+    } catch (error) {}
   }
 }

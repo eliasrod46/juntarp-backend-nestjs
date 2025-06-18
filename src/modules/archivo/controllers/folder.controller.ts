@@ -43,6 +43,12 @@ export class FolderController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('create-folders')
+  createFolders() {
+    return this.folderService.createFolders();
+  }
+
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.folderService.findOne(id);
@@ -62,11 +68,5 @@ export class FolderController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.folderService.remove(id);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('create-folders')
-  createFolders() {
-    return this.folderService.createFolders();
   }
 }
