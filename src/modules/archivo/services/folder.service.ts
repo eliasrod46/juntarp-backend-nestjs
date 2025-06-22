@@ -19,8 +19,8 @@ export class FolderService {
     @InjectRepository(Folder)
     private readonly folderRepository: Repository<Folder>,
     @InjectRepository(FolderHistory)
-    private readonly folderHistoryRepository: Repository<FolderHistory>, 
-     @Inject(forwardRef(() => DocentesService)) // <-- ¡CAMBIO CRÍTICO AQUÍ!
+    private readonly folderHistoryRepository: Repository<FolderHistory>,
+    @Inject(forwardRef(() => DocentesService)) // <-- ¡CAMBIO CRÍTICO AQUÍ!
     private readonly docenteService: DocentesService,
     private readonly usersService: UserService,
   ) {}
@@ -34,22 +34,33 @@ export class FolderService {
       throw new BadRequestException('Docente no encontrado');
     }
 
-    const savedFolder = await this.folderRepository.save({
-      docente,
-      ...createFolderDto,
+    const checkIfFolderExist = await this.folderRepository.findOne({
+      where: {
+        originFile: createFolderDto.originFile,
+        docente: { id: docente.id },
+      },
     });
 
-    await this.folderHistoryRepository.save({
-      folder: savedFolder,
-      state: createFolderDto.state,
-      originFile: createFolderDto.originFile,
-      location: createFolderDto.location,
-      details: createFolderDto.details,
-      observations: createFolderDto.observations,
-      income_date: createFolderDto.income_date,
-      outcome_date: createFolderDto.outcome_date,
-    });
-    return savedFolder;
+    if (!checkIfFolderExist) {
+      const savedFolder = await this.folderRepository.save({
+        docente,
+        ...createFolderDto,
+      });
+
+      await this.folderHistoryRepository.save({
+        folder: savedFolder,
+        state: createFolderDto.state,
+        originFile: createFolderDto.originFile,
+        location: createFolderDto.location,
+        details: createFolderDto.details,
+        observations: createFolderDto.observations,
+        income_date: createFolderDto.income_date,
+        outcome_date: createFolderDto.outcome_date,
+      });
+      return savedFolder;
+    }
+
+    return checkIfFolderExist;
   }
 
   async findAll(originFile: number) {
@@ -57,9 +68,13 @@ export class FolderService {
   }
 
   async findAllHistory(originFile: number) {
-    return await this.folderHistoryRepository.find({ where: { originFile },relations: ['folder'],order: {
-      updatedAt: 'DESC', // O 'ASC' si quieres ordenar de más antiguo a más reciente
-    }, });
+    return await this.folderHistoryRepository.find({
+      where: { originFile },
+      relations: ['folder'],
+      order: {
+        updatedAt: 'DESC', // O 'ASC' si quieres ordenar de más antiguo a más reciente
+      },
+    });
   }
 
   async findOne(id: string) {
@@ -129,17 +144,19 @@ export class FolderService {
             originFile: 1,
           },
         });
-  
-        const checkIfExistTitularesFolder = await this.folderRepository.findOne({
-          where: {
-            docente: { id: docente.id },
-            originFile: 2,
+
+        const checkIfExistTitularesFolder = await this.folderRepository.findOne(
+          {
+            where: {
+              docente: { id: docente.id },
+              originFile: 2,
+            },
           },
-        });
-  
+        );
+
         // If not, will create
         const newFolders = []; // Array to save new folders
-  
+
         if (!checkIfExistIngresoFolder) {
           const newIngresoFolder = await this.create({
             docenteId: docente.id,
@@ -148,7 +165,7 @@ export class FolderService {
           });
           newFolders.push(newIngresoFolder); // add new folder
         }
-  
+
         if (!checkIfExistTitularesFolder) {
           const newTitularesFolder = await this.create({
             docenteId: docente.id,
@@ -157,7 +174,7 @@ export class FolderService {
           });
           newFolders.push(newTitularesFolder); // add new folder
         }
-  
+
         // Assign all new folders to the teacher
         if (newFolders.length > 0) {
           // Actualizar el docente con las nuevas carpetas

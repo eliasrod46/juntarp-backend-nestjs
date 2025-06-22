@@ -10,13 +10,14 @@ import { Repository } from 'typeorm';
 import { Docente } from './entities/docente.entity';
 import { CreateDocenteDto, UpdateDocenteDto } from './dto/docente.dto';
 import { FolderService } from '../archivo/services/folder.service';
+import { CreateFolderDto } from '../archivo/dto';
 
 @Injectable()
 export class DocentesService {
   constructor(
     @InjectRepository(Docente)
     private readonly docenteRepository: Repository<Docente>,
-     @Inject(forwardRef(() => FolderService)) 
+    @Inject(forwardRef(() => FolderService))
     private readonly folderService: FolderService,
   ) {}
 
@@ -26,16 +27,20 @@ export class DocentesService {
       const deletedDocente = await this.findDeletedDocenteByDni(
         createDocenteDto.dni,
       );
+      //check if docente was soft deleted
+      const checkDocente = await this.findOneByDni(createDocenteDto.dni);
 
-      // if was deleted, restore
-      if (deletedDocente) {
-        await this.docenteRepository.restore(deletedDocente.id);
-        return deletedDocente;
+      if (!checkDocente) {
+        if (deletedDocente) {
+          // if was deleted, restore
+          await this.docenteRepository.restore(deletedDocente.id);
+          return deletedDocente;
+        } else {
+          // if not, create
+          const newDocente = this.docenteRepository.create(createDocenteDto);
+          return await this.docenteRepository.save(newDocente);
+        }
       }
-
-      // if not, create
-      const newDocente = this.docenteRepository.create(createDocenteDto);
-      return await this.docenteRepository.save(newDocente);
     } catch (error) {
       if (error.errno === 1062) {
         throw new BadRequestException(
