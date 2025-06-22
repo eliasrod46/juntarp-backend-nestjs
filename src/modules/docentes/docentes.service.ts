@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,12 +9,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Docente } from './entities/docente.entity';
 import { CreateDocenteDto, UpdateDocenteDto } from './dto/docente.dto';
+import { FolderService } from '../archivo/services/folder.service';
 
 @Injectable()
 export class DocentesService {
   constructor(
     @InjectRepository(Docente)
     private readonly docenteRepository: Repository<Docente>,
+     @Inject(forwardRef(() => FolderService)) 
+    private readonly folderService: FolderService,
   ) {}
 
   async create(createDocenteDto: CreateDocenteDto): Promise<Docente> {

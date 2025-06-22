@@ -8,6 +8,8 @@ import { UserService } from '../user/user.service';
 import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../user/entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
+import { Permission } from '../roles/entities/permission.entity';
 
 @Injectable()
 export class AuthService {
@@ -70,14 +72,33 @@ export class AuthService {
 
   async getPermissions(user: User) {
     const rolesToSend: string[] = [];
+    const allUniquePermissionRoutes: string[] = []; // Array para almacenar los permisos únicos
+    const seenPermissionRoutes = new Set<string>();
     const user_roles = user.roles;
-    user_roles.forEach((role) => {
+
+    // console.log(user_roles, user_roles[0]); // Tu log original para depuración
+
+    user_roles.forEach((role: Role) => {
+      // Agrega el nombre del rol a la lista
       rolesToSend.push(role.name);
+
+      if (role.permissions && Array.isArray(role.permissions)) {
+        role.permissions.forEach((permission: Permission) => {
+          // Aseguramos que el permiso tenga una ruta
+          if (permission.route) {
+            // Verifica si la RUTA del permiso ya ha sido agregada
+            if (!seenPermissionRoutes.has(permission.route)) {
+              allUniquePermissionRoutes.push(permission.route); // Agrega solo la RUTA al array final
+              seenPermissionRoutes.add(permission.route); // Registra la RUTA como vista
+            }
+          }
+        });
+      }
     });
 
     return {
       roles: rolesToSend,
-      permissions: [],
+      permissions: allUniquePermissionRoutes, // Devuelve el array de permisos únicos
     };
   }
 }

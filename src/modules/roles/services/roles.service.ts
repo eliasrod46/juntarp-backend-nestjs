@@ -6,14 +6,21 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
-import { CreateRoleDto, UpdateRoleDto } from '../dto/role.dto';
-import { log } from 'console';
+import {
+  AssignPermissionsToRolDto,
+  CreateRoleDto,
+  UpdateRoleDto,
+} from '../dto/role.dto';
+import { Permission } from '../entities/permission.entity';
+import { PermissionsService } from './permissions.service';
 
 @Injectable()
 export class RolesService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
   ) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -43,13 +50,15 @@ export class RolesService {
 
   async findOne(id: string): Promise<Role | null> {
     if (id) {
-      const role = await this.roleRepository.findOneBy({ id });
+      const role = await this.roleRepository.findOne({
+        where: { id },
+        relations: ['permissions'], // Carga la relación 'permissions'
+      });
+
       if (!role) {
-        throw new NotFoundException(`Rol con ID ${id} no encontrado`);
+        throw new NotFoundException(`Role with ID "${id}" not found`);
       }
       return role;
-    } else {
-      throw new NotFoundException(`id no recibido`);
     }
   }
 
@@ -79,7 +88,7 @@ export class RolesService {
     await this.roleRepository.softDelete(id);
   }
 
-  //nuevos
+  //news
 
   async findDeletedRoleByName(name: string): Promise<Role | null> {
     const response = await this.roleRepository.findOne({
@@ -104,5 +113,46 @@ export class RolesService {
     });
 
     return response;
+  }
+
+  async assinPermissions(
+    id: string,
+    assignPermissionsToRolDto: AssignPermissionsToRolDto,
+  ): Promise<void> {
+    try {
+      //get role entity
+      const roleToUpdate = await this.findOne(id);
+
+      // get names of permissions recived
+      const receivedPermissionNames = assignPermissionsToRolDto.permissions.map(
+        (p) => p.name,
+      );
+
+      // get entities of permissions
+      const fullReceivedPermissions: Permission[] =
+        await this.permissionRepository.find({
+          where: receivedPermissionNames.map((name) => ({ name })),
+        });
+
+      // update and save role
+      roleToUpdate.permissions = fullReceivedPermissions;
+      await this.roleRepository.save(roleToUpdate);
+
+      // const check = await this.findRoleByName(updateRoleDto.name);
+      // if (check) {
+      //   throw new BadRequestException(
+      //     `El rol: ${updateRoleDto.name} ya existe.`,
+      //   );
+      // }
+      // const result = await this.roleRepository.update(id, updateRoleDto);
+      // if (result.affected === 0) {
+      //   throw new NotFoundException(`Rol con ID ${id} no encontrado`);
+      // }
+      // return this.findOne(id);
+    } catch (error) {
+      console.log({ error });
+
+      // throw error;
+    }
   }
 }

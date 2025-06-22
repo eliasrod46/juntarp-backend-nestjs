@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,7 +19,8 @@ export class FolderService {
     @InjectRepository(Folder)
     private readonly folderRepository: Repository<Folder>,
     @InjectRepository(FolderHistory)
-    private readonly folderHistoryRepository: Repository<FolderHistory>, //cuando descomento esta linea me da este error
+    private readonly folderHistoryRepository: Repository<FolderHistory>, 
+     @Inject(forwardRef(() => DocentesService)) // <-- ¡CAMBIO CRÍTICO AQUÍ!
     private readonly docenteService: DocentesService,
     private readonly usersService: UserService,
   ) {}

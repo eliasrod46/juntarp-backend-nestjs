@@ -21,7 +21,9 @@ export class Role {
   @ManyToMany(() => User, (user) => user.roles)
   users: User[];
 
-  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @ManyToMany(() => Permission, (permission) => permission.roles, {
+    eager: true,
+  })
   permissions: Permission[];
 
   @CreateDateColumn()

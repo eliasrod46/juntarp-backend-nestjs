@@ -21,7 +21,6 @@ export class PermissionsService {
 
   async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
     try {
-
       //check if docente was soft deleted
       const deletedPermission = await this.findDeletedPermisssionByName(
         createPermissionDto.name,
@@ -125,19 +124,24 @@ export class PermissionsService {
     try {
       createGenericPermissionsDto.permissions.forEach(
         async (createPermissionDto) => {
+          const permissionCheck = await this.findPermisssionByName(
+            createPermissionDto.name,
+          );
+
           const deletedPermission = await this.findDeletedPermisssionByName(
             createPermissionDto.name,
           );
 
-          // if was deleted, restore
-          if (deletedPermission) {
-            await this.permissionRepository.restore(deletedPermission.id);
+          if (!permissionCheck) {
+            // if was deleted, restore
+            if (deletedPermission) {
+              await this.permissionRepository.restore(deletedPermission.id);
+            } else {
+              const newPermission =
+                this.permissionRepository.create(createPermissionDto);
+              await this.permissionRepository.save(newPermission);
+            }
           }
-
-          // if not, create
-          const newPermission = this.permissionRepository.create(createPermissionDto);
-          await this.permissionRepository.save(newPermission);
-
         },
       );
     } catch (error) {
